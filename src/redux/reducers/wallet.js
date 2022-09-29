@@ -1,1 +1,18 @@
-// Esse reducer será responsável por tratar o todas as informações relacionadas as despesas
+import { WALLET_DATA } from '../actions';
+
+const INITIAL_STATE = {
+  value: '',
+};
+
+const wallet = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+  case WALLET_DATA:
+    return {
+      ...state,
+    };
+  default:
+    return state;
+  }
+};
+
+export default wallet;
