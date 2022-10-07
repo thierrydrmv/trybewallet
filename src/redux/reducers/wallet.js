@@ -1,4 +1,4 @@
-import { COIN_DATA, IS_LOADING, WALLET_DATA } from '../actions';
+import { COIN_DATA, DELETE_EXPENSE, IS_LOADING, WALLET_DATA } from '../actions';
 
 const INITIAL_STATE = {
   expenses: [],
@@ -24,6 +24,11 @@ const wallet = (state = INITIAL_STATE, action) => {
       loading: false,
       currencies: Object.values(action.state)
         .filter(({ codein }) => codein !== 'BRLT').map(({ code }) => code),
+    };
+  case DELETE_EXPENSE:
+    return {
+      ...state,
+      expenses: state.expenses.filter(({ id }) => id !== action.id),
     };
   default:
     return state;
