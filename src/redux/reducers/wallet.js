@@ -1,7 +1,7 @@
 import { COIN_DATA, IS_LOADING, WALLET_DATA } from '../actions';
 
 const INITIAL_STATE = {
-  value: '',
+  expenses: [],
   currencies: [],
   loading: false,
 };
@@ -16,6 +16,7 @@ const wallet = (state = INITIAL_STATE, action) => {
   case WALLET_DATA:
     return {
       ...state,
+      expenses: [...state.expenses, action.payload],
     };
   case COIN_DATA:
     return {

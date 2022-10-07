@@ -1,24 +1,41 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { requestApi } from '../redux/actions';
+import { requestApi, WALLET_DATA } from '../redux/actions';
 
 class WalletForm extends Component {
   state = {
-    quantity: 0,
+    id: -1,
+    value: '',
     description: '',
-    coin: 'USD',
-    payMethod: 'Dinheiro',
-    category: 'Alimentação',
+    currency: 'USD',
+    method: 'Dinheiro',
+    tag: 'Alimentação',
+    exchangeRates: {},
   };
 
   componentDidMount() {
-    this.fetchApi();
+    const { coinDispatch } = this.props;
+    coinDispatch();
   }
 
+  sendData = async () => {
+    const { id } = this.state;
+    const { infoDispatch } = this.props;
+    this.setState({ id: id + 1 });
+    const exchangeRates = await this.fetchApi();
+    const action = {
+      type: WALLET_DATA, payload: { ...this.state, exchangeRates } };
+    infoDispatch(action);
+    this.setState({
+      value: '',
+      description: '' });
+  };
+
   fetchApi = async () => {
-    const { coinDispatch } = this.props;
-    await coinDispatch(requestApi());
+    const response = await fetch('https://economia.awesomeapi.com.br/json/all');
+    const data = await response.json();
+    return data;
   };
 
   handleChange = ({ target }) => {
@@ -27,7 +44,7 @@ class WalletForm extends Component {
   };
 
   render() {
-    const { quantity, description, coin, payMethod, category } = this.state;
+    const { value, description, currency, method, tag } = this.state;
     const { coins, loading } = this.props;
     return (
       <form>
@@ -37,8 +54,8 @@ class WalletForm extends Component {
               <label htmlFor="value">
                 Valor:
                 <input
-                  name="quantity"
-                  value={ quantity }
+                  name="value"
+                  value={ value }
                   id="value"
                   type="number"
                   data-testid="value-input"
@@ -58,8 +75,8 @@ class WalletForm extends Component {
               <label htmlFor="currency">
                 Moeda:
                 <select
-                  name="coin"
-                  value={ coin }
+                  name="currency"
+                  value={ currency }
                   id="currency"
                   data-testid="currency-input"
                   onChange={ this.handleChange }
@@ -74,8 +91,8 @@ class WalletForm extends Component {
               <label htmlFor="method">
                 Método de pagamento:
                 <select
-                  name="payMethod"
-                  value={ payMethod }
+                  name="method"
+                  value={ method }
                   id="method"
                   data-testid="method-input"
                   onChange={ this.handleChange }
@@ -88,8 +105,8 @@ class WalletForm extends Component {
               <label htmlFor="type">
                 Categoria:
                 <select
-                  name="category"
-                  value={ category }
+                  name="tag"
+                  value={ tag }
                   id="type"
                   data-testid="tag-input"
                   onChange={ this.handleChange }
@@ -103,13 +120,15 @@ class WalletForm extends Component {
               </label>
             </>
           )}
+        <button type="button" onClick={ this.sendData }>Adicionar despesa</button>
       </form>
     );
   }
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  coinDispatch: (state) => dispatch(state),
+  coinDispatch: () => dispatch(requestApi()),
+  infoDispatch: (state) => dispatch(state),
 });
 
 const mapStateToProps = ({ wallet: { currencies, loading } }) => ({
@@ -122,7 +141,13 @@ WalletForm.propTypes = {
   coins: PropTypes.arrayOf(
     PropTypes.string,
   ).isRequired,
+  exchangeRates: PropTypes.shape({}),
   loading: PropTypes.bool.isRequired,
+  infoDispatch: PropTypes.func.isRequired,
+};
+
+WalletForm.defaultProps = {
+  exchangeRates: {},
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);
