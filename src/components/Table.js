@@ -8,7 +8,7 @@ class Table extends Component {
     console.log(expenses);
     return (
       <table>
-        <tbody>
+        <thead>
           <tr>
             <th>Descrição</th>
             <th>Tag</th>
@@ -20,6 +20,26 @@ class Table extends Component {
             <th>Moeda de conversão</th>
             <th>Editar/Excluir</th>
           </tr>
+        </thead>
+        <tbody>
+
+          { expenses.map((expense) => (
+            <tr key={ expense.id }>
+              <td>{expense.description}</td>
+              <td>{expense.tag}</td>
+              <td>{expense.method}</td>
+              <td>{parseFloat(expense.value).toFixed(2)}</td>
+              <td>{expense.exchangeRates[expense.currency].name}</td>
+              <td>
+                {parseFloat(expense.exchangeRates[expense.currency].ask).toFixed(2)}
+              </td>
+              <td>
+                {(expense.value * expense.exchangeRates[expense.currency].ask).toFixed(2)}
+              </td>
+              <td>Real</td>
+              <td>Editar/Excluir</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     );
