@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { USER_DATA } from '../redux/actions';
+import { userAction } from '../redux/actions';
 
 class Login extends React.Component {
   state = {
@@ -31,8 +31,7 @@ class Login extends React.Component {
 
   wallet = () => {
     const { history, userDispatch } = this.props;
-    const action = { type: USER_DATA, payload: { ...this.state } };
-    userDispatch(action);
+    userDispatch({ ...this.state });
     history.push('/carteira');
   };
 
@@ -60,7 +59,7 @@ class Login extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  userDispatch: (state) => dispatch(state),
+  userDispatch: (state) => dispatch(userAction(state)),
 });
 
 Login.propTypes = {
