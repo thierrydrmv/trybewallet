@@ -202,18 +202,12 @@ WalletForm.propTypes = {
   coins: PropTypes.arrayOf(
     PropTypes.string,
   ).isRequired,
-  exchangeRates: PropTypes.shape({}),
   edit: PropTypes.shape({
     id: PropTypes.number,
-  }),
+  }).isRequired,
   loading: PropTypes.bool.isRequired,
   editing: PropTypes.bool.isRequired,
   infoDispatch: PropTypes.func.isRequired,
-};
-
-WalletForm.defaultProps = {
-  exchangeRates: {},
-  edit: {},
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);
