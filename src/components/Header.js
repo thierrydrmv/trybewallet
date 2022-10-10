@@ -8,7 +8,6 @@ class Header extends Component {
     const value = expenses
       .reduce((prev, curr) => prev
       + parseFloat(curr.value * curr.exchangeRates[curr.currency].ask), 0);
-    console.log(expenses);
     return (
       <div>
         <p data-testid="email-field">{email}</p>

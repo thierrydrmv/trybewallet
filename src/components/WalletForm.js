@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { requestApi, WALLET_DATA } from '../redux/actions';
+import { requestApi, WALLET_DATA, sendId, editAction } from '../redux/actions';
 
 class WalletForm extends Component {
   state = {
-    id: -1,
+    id: 0,
     value: '',
     description: '',
     currency: 'USD',
     method: 'Dinheiro',
     tag: 'Alimentação',
     exchangeRates: {},
+    valid: true,
   };
 
   componentDidMount() {
@@ -20,13 +21,35 @@ class WalletForm extends Component {
   }
 
   sendData = async () => {
-    const { id } = this.state;
+    const { id, value, description, currency, method, tag } = this.state;
     const { infoDispatch } = this.props;
-    this.setState({ id: id + 1 });
     const exchangeRates = await this.fetchApi();
     const action = {
-      type: WALLET_DATA, payload: { ...this.state, exchangeRates } };
+      type: WALLET_DATA,
+      payload: {
+        id,
+        value,
+        description,
+        currency,
+        method,
+        tag,
+        exchangeRates } };
     infoDispatch(action);
+    this.setState({
+      value: '',
+      description: '',
+      id: id + 1,
+      exchangeRates,
+    });
+  };
+
+  sendId = (state) => {
+    const { idDispatch, editDispatch, edit } = this.props;
+    const { exchangeRates } = this.state;
+    editDispatch({ ...state, id: edit.id, exchangeRates });
+    idDispatch(edit.id);
+    const b = { ...state, id: edit.id, exchangeRates };
+    console.log(b);
     this.setState({
       value: '',
       description: '' });
@@ -40,12 +63,27 @@ class WalletForm extends Component {
 
   handleChange = ({ target }) => {
     const { name, value } = target;
-    this.setState({ [name]: value });
+    this.setState({ [name]: value }, () => {
+      this.validData();
+    });
+  };
+
+  validData = () => {
+    const { value, description } = this.state;
+    if (value && description) {
+      this.setState({
+        valid: false,
+      });
+    } else {
+      this.setState({
+        valid: true,
+      });
+    }
   };
 
   render() {
-    const { value, description, currency, method, tag } = this.state;
-    const { coins, loading } = this.props;
+    const { value, description, currency, method, tag, valid } = this.state;
+    const { coins, loading, editing } = this.props;
     return (
       <form>
         { loading ? <h1>LOADING</h1>
@@ -120,7 +158,29 @@ class WalletForm extends Component {
               </label>
             </>
           )}
-        <button type="button" onClick={ this.sendData }>Adicionar despesa</button>
+        {
+          editing
+            ? (
+              <button
+                type="button"
+                onClick={ () => this
+                  .sendId({ value, description, currency, method, tag }) }
+              >
+                Editar despesa
+              </button>
+            )
+            : (
+              <button
+                type="button"
+                onClick={ this.sendData }
+                disabled={ valid }
+              >
+                Adicionar despesa
+
+              </button>
+            )
+        }
+
       </form>
     );
   }
@@ -129,25 +189,36 @@ class WalletForm extends Component {
 const mapDispatchToProps = (dispatch) => ({
   coinDispatch: () => dispatch(requestApi()),
   infoDispatch: (state) => dispatch(state),
+  idDispatch: (id) => dispatch(sendId(id)),
+  editDispatch: (state) => dispatch(editAction(state)),
 });
 
-const mapStateToProps = ({ wallet: { currencies, loading } }) => ({
+const mapStateToProps = ({ wallet: { currencies, loading, edit, editing } }) => ({
   coins: currencies,
   loading,
+  edit,
+  editing,
 });
 
 WalletForm.propTypes = {
   coinDispatch: PropTypes.func.isRequired,
+  idDispatch: PropTypes.func.isRequired,
+  editDispatch: PropTypes.func.isRequired,
   coins: PropTypes.arrayOf(
     PropTypes.string,
   ).isRequired,
   exchangeRates: PropTypes.shape({}),
+  edit: PropTypes.shape({
+    id: PropTypes.number,
+  }),
   loading: PropTypes.bool.isRequired,
+  editing: PropTypes.bool.isRequired,
   infoDispatch: PropTypes.func.isRequired,
 };
 
 WalletForm.defaultProps = {
   exchangeRates: {},
+  edit: {},
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);
