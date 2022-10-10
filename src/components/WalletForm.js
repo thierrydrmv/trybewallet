@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { requestApi, WALLET_DATA, sendId, editAction } from '../redux/actions';
+import { requestApi, walletAction, sendId, editAction } from '../redux/actions';
 
 class WalletForm extends Component {
   state = {
@@ -24,17 +24,14 @@ class WalletForm extends Component {
     const { id, value, description, currency, method, tag } = this.state;
     const { infoDispatch } = this.props;
     const exchangeRates = await this.fetchApi();
-    const action = {
-      type: WALLET_DATA,
-      payload: {
-        id,
-        value,
-        description,
-        currency,
-        method,
-        tag,
-        exchangeRates } };
-    infoDispatch(action);
+    infoDispatch({
+      id,
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates });
     this.setState({
       value: '',
       description: '',
@@ -48,8 +45,6 @@ class WalletForm extends Component {
     const { exchangeRates } = this.state;
     editDispatch({ ...state, id: edit.id, exchangeRates });
     idDispatch(edit.id);
-    const b = { ...state, id: edit.id, exchangeRates };
-    console.log(b);
     this.setState({
       value: '',
       description: '' });
@@ -188,7 +183,7 @@ class WalletForm extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
   coinDispatch: () => dispatch(requestApi()),
-  infoDispatch: (state) => dispatch(state),
+  infoDispatch: (state) => dispatch(walletAction(state)),
   idDispatch: (id) => dispatch(sendId(id)),
   editDispatch: (state) => dispatch(editAction(state)),
 });
