@@ -1,7 +1,6 @@
 import { COIN_DATA,
   DELETE_EXPENSE,
   EDIT_EXPENSE,
-  IS_LOADING,
   SEND_ID,
   WALLET_DATA } from '../actions';
 
@@ -15,11 +14,6 @@ const INITIAL_STATE = {
 
 const wallet = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  case IS_LOADING:
-    return {
-      ...state,
-      loading: true,
-    };
   case WALLET_DATA:
     return {
       ...state,
@@ -28,7 +22,7 @@ const wallet = (state = INITIAL_STATE, action) => {
   case COIN_DATA:
     return {
       ...state,
-      loading: false,
+      api: action.state,
       currencies: Object.values(action.state)
         .filter(({ codein }) => codein !== 'BRLT').map(({ code }) => code),
     };

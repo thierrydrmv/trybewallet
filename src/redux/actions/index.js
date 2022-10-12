@@ -21,13 +21,14 @@ export const sendId = (id) => ({ type: SEND_ID, id });
 
 export const editAction = (state) => ({ type: EDIT_EXPENSE, state });
 
-const isLoading = () => ({
-  type: IS_LOADING,
-});
-
 export const requestApi = () => async (dispatch) => {
-  dispatch(isLoading());
   const response = await fetch('https://economia.awesomeapi.com.br/json/all');
   const data = await response.json();
   dispatch(getCoins(data));
+};
+
+export const expenseAction = (state) => async (dispatch) => {
+  const response = await fetch('https://economia.awesomeapi.com.br/json/all');
+  const data = await response.json();
+  dispatch(walletAction({ ...state, exchangeRates: data }));
 };

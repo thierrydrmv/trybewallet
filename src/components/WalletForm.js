@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { requestApi, walletAction, sendId, editAction } from '../redux/actions';
+import { requestApi, expenseAction, sendId, editAction } from '../redux/actions';
 
 class WalletForm extends Component {
   state = {
@@ -11,7 +11,6 @@ class WalletForm extends Component {
     currency: 'USD',
     method: 'Dinheiro',
     tag: 'Alimentação',
-    exchangeRates: {},
     valid: true,
   };
 
@@ -21,39 +20,25 @@ class WalletForm extends Component {
   }
 
   sendData = async () => {
-    const { id, value, description, currency, method, tag } = this.state;
     const { infoDispatch } = this.props;
-    const exchangeRates = await this.fetchApi();
+    const { id, value, description, currency, method, tag } = this.state;
     infoDispatch({
-      id,
-      value,
-      description,
-      currency,
-      method,
-      tag,
-      exchangeRates });
+      id, value, description, currency, method, tag,
+    });
     this.setState({
       value: '',
       description: '',
       id: id + 1,
-      exchangeRates,
     });
   };
 
   sendId = (state) => {
-    const { idDispatch, editDispatch, edit } = this.props;
-    const { exchangeRates } = this.state;
-    editDispatch({ ...state, id: edit.id, exchangeRates });
+    const { idDispatch, editDispatch, edit, api } = this.props;
+    editDispatch({ ...state, id: edit.id, exchangeRates: api });
     idDispatch(edit.id);
     this.setState({
       value: '',
       description: '' });
-  };
-
-  fetchApi = async () => {
-    const response = await fetch('https://economia.awesomeapi.com.br/json/all');
-    const data = await response.json();
-    return data;
   };
 
   handleChange = ({ target }) => {
@@ -183,16 +168,19 @@ class WalletForm extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
   coinDispatch: () => dispatch(requestApi()),
-  infoDispatch: (state) => dispatch(walletAction(state)),
+  infoDispatch: (state) => dispatch(expenseAction(state)),
   idDispatch: (id) => dispatch(sendId(id)),
   editDispatch: (state) => dispatch(editAction(state)),
 });
 
-const mapStateToProps = ({ wallet: { currencies, loading, edit, editing } }) => ({
+const mapStateToProps = (
+  { wallet: { currencies, loading, edit, editing, api } },
+) => ({
   coins: currencies,
   loading,
   edit,
   editing,
+  api,
 });
 
 WalletForm.propTypes = {
@@ -205,6 +193,7 @@ WalletForm.propTypes = {
   edit: PropTypes.shape({
     id: PropTypes.number,
   }).isRequired,
+  api: PropTypes.shape({}).isRequired,
   loading: PropTypes.bool.isRequired,
   editing: PropTypes.bool.isRequired,
   infoDispatch: PropTypes.func.isRequired,
