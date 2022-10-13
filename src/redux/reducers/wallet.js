@@ -7,7 +7,6 @@ import { COIN_DATA,
 const INITIAL_STATE = {
   expenses: [],
   currencies: [],
-  loading: false,
   editing: false,
   edit: {},
 };

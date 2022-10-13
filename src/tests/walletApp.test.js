@@ -27,12 +27,22 @@ const initialState = {
       value: '12',
       currency: 'USD',
       method: 'Dinheiro',
-      tag: 'Alimentação',
+      tag: 'Lazer',
       description: 'mouse',
       exchangeRates: mockData,
     },
     ],
-
+    editing: false,
+    edit: {
+      id: 0,
+      value: '44',
+      currency: 'USD',
+      method: 'Dinheiro',
+      tag: 'Alimentação',
+      description: 'mousepad',
+      exchangeRates: mockData,
+    },
+    api: mockData,
   },
 };
 
@@ -54,39 +64,36 @@ describe('testes aplicação trybewallet', () => {
 
     expect(history.location.pathname).toBe('/carteira');
   });
-  it('testando componente wallet', async () => {
-    renderWithRouterAndRedux(<Wallet />, { initialState });
 
+  it('adicionando um produto', async () => {
+    renderWithRouterAndRedux(<Wallet />);
     const inputValue = screen.getByTestId('value-input');
     const inputDescription = screen.getByTestId('description-input');
-    const inputCurrency = screen.getByTestId('currency-input');
-    const inputMethod = screen.getByTestId('method-input');
-    const inputTag = screen.getByTestId('tag-input');
     const btnAdd = screen.getByRole('button', { name: /adicionar despesa/i });
 
-    expect(inputValue).toBeInTheDocument();
-    expect(inputDescription).toBeInTheDocument();
-    expect(inputCurrency).toBeInTheDocument();
-    expect(inputMethod).toBeInTheDocument();
-    expect(inputTag).toBeInTheDocument();
-    expect(btnAdd).toBeInTheDocument();
+    userEvent.type(inputValue, '12');
+    userEvent.type(inputDescription, 'camiseta');
+    userEvent.click(btnAdd);
 
-    const btnEdit = screen.getAllByRole('button', { name: /editar/i });
-    const btnDelete = screen.getAllByRole('button', { name: /excluir/i });
+    const btnEdit = await screen.findByRole('button', { name: /editar/i });
 
-    expect(btnEdit[0]).toBeInTheDocument();
-    expect(btnDelete[0]).toBeInTheDocument();
+    expect(btnEdit).toBeInTheDocument();
   });
-  it('testando botões', async () => {
+
+  it('testando botões', () => {
     renderWithRouterAndRedux(<Wallet />, { initialState });
-    const btnEdit = screen.getAllByRole('button', { name: /editar/i });
     const inputValue = screen.getByTestId('value-input');
     const inputDescription = screen.getByTestId('description-input');
+    const btnDelete = screen.getAllByRole('button', { name: /excluir/i });
 
-    userEvent.click(btnEdit[0]);
-    userEvent.type(inputValue, 44);
+    userEvent.click(btnDelete[1]);
+    const btnEdit = screen.getByRole('button', { name: /editar/i });
+    userEvent.click(btnEdit);
+    userEvent.type(inputValue, '44');
     userEvent.type(inputDescription, 'a');
     const btnCorfirmEdit = screen.getByRole('button', { name: /editar despesa/i });
     expect(btnCorfirmEdit).toBeInTheDocument();
+
+    userEvent.click(btnCorfirmEdit);
   });
 });
